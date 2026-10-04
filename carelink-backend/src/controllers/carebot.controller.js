@@ -1,5 +1,5 @@
 const { ChatMessage, Patient, Referral, DiagnosticResult, Medication } = require('../models');
-const { streamCareBotResponse } = require('../services/openai.service');
+const { streamCareBotResponse } = require('../services/gemini.service');
 
 const chatWithCareBot = async (req, res) => {
   try {
