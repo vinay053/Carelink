@@ -2,7 +2,11 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/carelink');
+    const rawUri = process.env.MONGODB_URI;
+    const uri = (rawUri && !rawUri.includes('your-connection-string'))
+      ? rawUri
+      : 'mongodb://localhost:27017/carelink';
+    const conn = await mongoose.connect(uri);
     console.log(`[CareLink DB] MongoDB Connected: ${conn.connection.host}`);
     return conn;
   } catch (error) {

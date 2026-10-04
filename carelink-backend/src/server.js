@@ -4,6 +4,7 @@ const connectDB = require('./utils/database');
 const { initCareGapCron } = require('./services/careGap.service');
 
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '127.0.0.1';
 
 async function startServer() {
   try {
@@ -16,9 +17,9 @@ async function startServer() {
     // Start HTTP server
     const server = http.createServer(app);
 
-    server.listen(PORT, () => {
-      console.log(`[CareLink Backend] Server listening on http://localhost:${PORT}`);
-      console.log(`[CareLink Backend] Health check available at http://localhost:${PORT}/health`);
+    server.listen(PORT, HOST, () => {
+      console.log(`[CareLink Backend] Server listening on http://${HOST}:${PORT}`);
+      console.log(`[CareLink Backend] Health check available at http://${HOST}:${PORT}/health`);
     });
 
     process.on('SIGTERM', () => {

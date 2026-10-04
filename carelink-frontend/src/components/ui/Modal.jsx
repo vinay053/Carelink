@@ -6,11 +6,13 @@ export default function Modal({
   onClose,
   title,
   children,
-  maxWidth = 'max-w-lg'
+  size = 'md', // sm: 400px, md: 560px, lg: 720px
 }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && isOpen && onClose) {
+        onClose();
+      }
     };
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -24,31 +26,98 @@ export default function Modal({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop blur overlay */}
-      <div
-        className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
-        onClick={onClose}
-      />
+  let maxWidth = '560px';
+  if (size === 'sm') maxWidth = '400px';
+  if (size === 'lg') maxWidth = '720px';
 
-      {/* Modal Dialog */}
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        animation: 'fadeIn 0.2s ease-in-out',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && onClose) {
+          onClose();
+        }
+      }}
+    >
       <div
-        className={`relative w-full ${maxWidth} bg-bgCard border border-borderColor rounded-2xl shadow-2xl z-10 overflow-hidden transform transition-all animate-in zoom-in-95 duration-200`}
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          borderRadius: 'var(--radius-card)', // 12px
+          border: '1px solid var(--border-color)',
+          padding: '24px',
+          width: '100%',
+          maxWidth,
+          boxShadow: 'var(--shadow-hover)',
+          display: 'flex',
+          flexDirection: 'column',
+          maxHeight: '90vh',
+          animation: 'fadeIn 0.2s ease-in-out',
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-borderColor bg-bgElevated/40">
-          <h3 className="text-base font-bold text-textPrimary tracking-tight">{title}</h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg text-textSecondary hover:text-textPrimary hover:bg-bgElevated transition-colors"
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '20px',
+            paddingBottom: '12px',
+            borderBottom: '1px solid var(--border-color)',
+          }}
+        >
+          <h3
+            style={{
+              fontSize: '18px',
+              fontWeight: 600,
+              color: '#FFFFFF',
+              margin: 0,
+            }}
           >
-            <X className="w-5 h-5" />
+            {title}
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+              padding: '4px',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'color 200ms ease-in-out',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-teal)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+            aria-label="Close modal"
+          >
+            <X size={20} />
           </button>
         </div>
 
-        {/* Modal Content */}
-        <div className="p-6 max-h-[80vh] overflow-y-auto">
+        {/* Scrollable Body */}
+        <div
+          style={{
+            overflowY: 'auto',
+            flex: 1,
+            paddingRight: '4px',
+          }}
+        >
           {children}
         </div>
       </div>

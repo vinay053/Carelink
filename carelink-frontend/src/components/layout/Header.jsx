@@ -1,114 +1,331 @@
-import React, { useState } from 'react';
-import { Bell, Menu, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { Menu, Search, Bell, User, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import api from '../../utils/api';
 
-export default function Header({ title, onMenuToggle }) {
-  const { activeAlerts, unreadAlertCount, acknowledgeAlert } = useApp();
-  const { user } = useAuth();
-  const [showAlertDropdown, setShowAlertDropdown] = useState(false);
+const routeTitles = {
+  '/dashboard': 'Dashboard',
+  '/patients': 'Patient Management',
+  '/referrals': 'Referrals',
+  '/referrals/new': 'Create Referral',
+  '/diagnostics': 'Diagnostics Tracker',
+  '/medications': 'Medication Reconciliation',
+  '/hospitals': 'Facility Intelligence',
+  '/carebot': 'CareBot Assistant',
+  '/analytics': 'Analytics & Reporting',
+  '/settings': 'System Settings',
+};
+
+export default function Header({ onToggleSidebar }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [unreadAlertsCount, setUnreadAlertsCount] = useState(0);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Dynamic Page Title
+  let currentTitle = routeTitles[location.pathname];
+  if (!currentTitle) {
+    if (location.pathname.startsWith('/referrals/')) currentTitle = 'Referral Detail';
+    else if (location.pathname.includes('/timeline')) currentTitle = 'Patient Longitudinal Timeline';
+    else currentTitle = 'CareLink Portal';
+  }
+
+  // Fetch unread alerts count
+  useEffect(() => {
+    let isMounted = true;
+    const fetchAlerts = async () => {
+      try {
+        const res = await api.get('/api/alerts');
+        const alerts = res.data?.data || res.data || [];
+        const unread = alerts.filter((a) => a.status === 'active' || !a.isAcknowledged).length;
+        if (isMounted) setUnreadAlertsCount(unread || alerts.length);
+      } catch (err) {
+        // Fallback default
+        if (isMounted) setUnreadAlertsCount(3);
+      }
+    };
+    fetchAlerts();
+    return () => { isMounted = false; };
+  }, [location.pathname]);
+
+  // Click outside listener for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
 
   return (
-    <header className="h-16 bg-bgCard/90 backdrop-blur-md border-b border-borderColor sticky top-0 z-30 flex items-center justify-between px-6">
-      {/* Mobile Menu Button + Page Title */}
-      <div className="flex items-center gap-4">
+    <header
+      style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        height: '64px',
+        backgroundColor: 'var(--bg-card)',
+        borderBottom: '1px solid var(--border-color)',
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px',
+      }}
+      className="left-0 md:left-[240px]"
+    >
+      {/* Left side: hamburger on mobile only, then current page title in 20px 600 white */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <button
-          onClick={onMenuToggle}
-          className="md:hidden p-2 rounded-lg text-textSecondary hover:text-textPrimary hover:bg-bgElevated"
+          type="button"
+          onClick={onToggleSidebar}
+          className="md:hidden"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-primary)',
+            cursor: 'pointer',
+            padding: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          aria-label="Toggle navigation"
         >
-          <Menu className="w-5 h-5" />
+          <Menu size={22} />
         </button>
-        <h1 className="text-lg font-bold text-textPrimary tracking-tight">{title}</h1>
+
+        <h1
+          style={{
+            fontSize: '20px',
+            fontWeight: 600,
+            color: '#FFFFFF',
+            margin: 0,
+            letterSpacing: '-0.3px',
+          }}
+        >
+          {currentTitle}
+        </h1>
       </div>
 
-      {/* Right Action Icons: Active Alerts & Avatar */}
-      <div className="flex items-center gap-3">
-        {/* Alert Notification Bell with Dropdown */}
-        <div className="relative">
+      {/* Right side: search icon button, Bell with red badge, circle avatar button with dropdown */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Search icon button */}
+        <button
+          type="button"
+          onClick={() => navigate('/referrals')}
+          style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '50%',
+            backgroundColor: 'transparent',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 200ms ease-in-out',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--accent-teal)';
+            e.currentTarget.style.borderColor = 'var(--accent-teal)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--text-secondary)';
+            e.currentTarget.style.borderColor = 'var(--border-color)';
+          }}
+          aria-label="Search"
+        >
+          <Search size={18} />
+        </button>
+
+        {/* Bell icon button with red badge circle */}
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard')}
+          style={{
+            position: 'relative',
+            width: '38px',
+            height: '38px',
+            borderRadius: '50%',
+            backgroundColor: 'transparent',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 200ms ease-in-out',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--accent-teal)';
+            e.currentTarget.style.borderColor = 'var(--accent-teal)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--text-secondary)';
+            e.currentTarget.style.borderColor = 'var(--border-color)';
+          }}
+          aria-label="Alerts"
+        >
+          <Bell size={18} />
+          {unreadAlertsCount > 0 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '-2px',
+                right: '-2px',
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--danger)',
+                color: '#FFFFFF',
+                fontSize: '10px',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 0 0 2px var(--bg-card)',
+              }}
+            >
+              {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
+            </span>
+          )}
+        </button>
+
+        {/* Circle avatar button with dropdown menu */}
+        <div style={{ position: 'relative' }} ref={dropdownRef}>
           <button
-            onClick={() => setShowAlertDropdown(!showAlertDropdown)}
-            className="p-2 rounded-lg text-textSecondary hover:text-textPrimary hover:bg-bgElevated relative transition-colors"
-            title="System Care Gap Alerts"
+            type="button"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--bg-elevated)',
+              border: '2px solid var(--accent-teal)',
+              color: 'var(--accent-teal)',
+              fontWeight: 700,
+              fontSize: '15px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 200ms ease-in-out',
+            }}
+            aria-label="User profile menu"
           >
-            <Bell className="w-5 h-5" />
-            {unreadAlertCount > 0 && (
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-danger animate-ping" />
-            )}
-            {unreadAlertCount > 0 && (
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-danger" />
-            )}
+            {userInitial}
           </button>
 
-          {/* Alert Dropdown Panel */}
-          {showAlertDropdown && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-bgCard border border-borderColor rounded-xl shadow-2xl z-50 p-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between pb-3 border-b border-borderColor">
-                <span className="text-xs font-bold uppercase tracking-wider text-textPrimary">
-                  Care Gap Alerts ({activeAlerts.length})
-                </span>
-                <Link
-                  to="/dashboard"
-                  onClick={() => setShowAlertDropdown(false)}
-                  className="text-xs font-semibold text-accentTeal hover:underline"
-                >
-                  View All
-                </Link>
+          {dropdownOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '48px',
+                right: 0,
+                width: '200px',
+                backgroundColor: 'var(--bg-elevated)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                boxShadow: 'var(--shadow-card)',
+                padding: '6px',
+                zIndex: 200,
+                animation: 'fadeIn 0.2s ease-in-out',
+              }}
+            >
+              <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)', marginBottom: '4px' }}>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF', margin: 0 }}>
+                  {user?.name || 'CareLink User'}
+                </p>
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>
+                  {user?.email || 'user@carelink.in'}
+                </p>
               </div>
 
-              <div className="mt-2 space-y-2 max-h-72 overflow-y-auto pr-1">
-                {activeAlerts.length === 0 ? (
-                  <p className="text-xs text-textSecondary py-4 text-center">
-                    No active care gaps or alerts.
-                  </p>
-                ) : (
-                  activeAlerts.slice(0, 5).map((alert) => (
-                    <div
-                      key={alert._id}
-                      className={`p-2.5 rounded-lg border text-xs ${
-                        alert.severity === 'critical'
-                          ? 'bg-dangerDim border-danger/30 text-danger'
-                          : 'bg-bgElevated border-borderColor text-textSecondary'
-                      }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5 text-danger" />
-                        <div className="flex-1">
-                          <p className="font-medium text-textPrimary leading-snug">{alert.message}</p>
-                          <div className="mt-1.5 flex items-center justify-between">
-                            <span className="text-[10px] text-textSecondary">
-                              {new Date(alert.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            {alert.status === 'active' && (
-                              <button
-                                onClick={() => acknowledgeAlert(alert._id)}
-                                className="text-[10px] font-semibold text-accentTeal hover:underline"
-                              >
-                                Acknowledge
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+              <Link
+                to="/settings"
+                onClick={() => setDropdownOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  color: 'var(--text-primary)',
+                  fontSize: '13px',
+                  textDecoration: 'none',
+                  transition: 'background 200ms',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-card)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <User size={15} color="var(--accent-teal)" />
+                <span>Profile</span>
+              </Link>
+
+              <Link
+                to="/settings"
+                onClick={() => setDropdownOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  color: 'var(--text-primary)',
+                  fontSize: '13px',
+                  textDecoration: 'none',
+                  transition: 'background 200ms',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-card)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <Settings size={15} color="var(--accent-teal)" />
+                <span>Settings</span>
+              </Link>
+
+              <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '4px 0' }} />
+
+              <button
+                type="button"
+                onClick={() => {
+                  setDropdownOpen(false);
+                  logout();
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  color: 'var(--danger)',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'background 200ms',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--danger-dim)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <LogOut size={15} color="var(--danger)" />
+                <span>Logout</span>
+              </button>
             </div>
           )}
         </div>
-
-        {/* User Pill */}
-        {user && (
-          <div className="flex items-center gap-2 pl-3 border-l border-borderColor">
-            <div className="w-7 h-7 rounded-full bg-accentTealDim text-accentTeal font-bold text-xs flex items-center justify-center border border-accentTeal/30">
-              {user.name ? user.name[0] : 'U'}
-            </div>
-            <span className="hidden sm:inline text-xs font-medium text-textSecondary truncate max-w-[120px]">
-              {user.name}
-            </span>
-          </div>
-        )}
       </div>
     </header>
   );

@@ -1,178 +1,313 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Activity, User, Mail, Lock, Phone, ArrowRight } from 'lucide-react';
+import { User, Mail, Phone, Lock, Eye, EyeOff, Building2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
+import Spinner from '../components/ui/Spinner';
 
 export default function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    role: 'doctor',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'Doctor',
+    hospitalName: 'District Hospital Jabalpur',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) newErrors.name = 'Full name is required';
+    if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Valid email is required';
+    }
+    // Phone must be 10 digits
+    const cleanedPhone = formData.phone.replace(/\D/g, '');
+    if (cleanedPhone.length !== 10) {
+      newErrors.phone = 'Phone number must be exactly 10 digits';
+    }
+    // Password min 8 chars
+    if (!formData.password || formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+    // Passwords must match
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    if (!formData.hospitalName.trim()) {
+      newErrors.hospitalName = 'Hospital name is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+    if (!validate()) {
+      toast.error('Please fix the validation errors.');
       return;
     }
+
     setLoading(true);
-    const result = await register({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      role: formData.role,
-      password: formData.password
-    });
-    setLoading(false);
-    if (result.success) {
-      navigate('/dashboard');
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.replace(/\D/g, ''),
+        password: formData.password,
+        role: formData.role.toLowerCase(),
+        hospitalName: formData.hospitalName.trim(),
+      };
+
+      const result = await register(payload);
+      if (result.success) {
+        toast.success('Registration successful! Please login.');
+        navigate('/login');
+      } else {
+        toast.error(result.message || 'Registration failed.');
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-bgPrimary flex flex-col justify-center items-center p-6">
-      <div className="w-full max-w-md bg-bgCard border border-borderColor rounded-2xl p-8 shadow-2xl space-y-6">
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-accentTeal/10 border border-accentTeal/30 flex items-center justify-center mx-auto text-accentTeal">
-            <Activity className="w-6 h-6 animate-pulse" />
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: 'var(--bg-primary)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '32px 16px',
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '480px',
+          backgroundColor: 'var(--bg-card)',
+          border: '2px solid var(--border-color)',
+          borderRadius: '12px',
+          padding: '40px',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        {/* Top: CareLink logo centered */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '16px' }}>
+          <div
+            style={{
+              position: 'relative',
+              width: '12px',
+              height: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-teal)',
+                opacity: 0.75,
+              }}
+              className="animate-ping"
+            />
+            <div
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-teal)',
+              }}
+            />
           </div>
-          <h2 className="text-2xl font-black tracking-tight text-textPrimary">Create Account</h2>
-          <p className="text-xs text-textSecondary">Join the CareLink Healthcare Continuity Network</p>
+          <span style={{ fontSize: '24px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.5px' }}>
+            CARE
+          </span>
+          <span style={{ fontSize: '24px', fontWeight: 700, color: 'var(--accent-teal)', letterSpacing: '-0.5px' }}>
+            LINK
+          </span>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          <div>
-            <label className="block text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">
-              Full Name
+        {/* Create your account title in 24px 700 white */}
+        <h2
+          style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#FFFFFF',
+            textAlign: 'center',
+            marginBottom: '24px',
+          }}
+        >
+          Create your account
+        </h2>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Full Name with User icon */}
+          <Input
+            label="Full Name"
+            icon={User}
+            placeholder="Dr. Siddharth Rao"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            error={errors.name}
+            required
+          />
+
+          {/* Email with Mail icon */}
+          <Input
+            label="Email Address"
+            type="email"
+            icon={Mail}
+            placeholder="siddharth.rao@hospital.in"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            error={errors.email}
+            required
+          />
+
+          {/* Phone with Phone icon */}
+          <Input
+            label="Phone (10 digits)"
+            type="tel"
+            icon={Phone}
+            placeholder="9876543210"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            error={errors.phone}
+            required
+          />
+
+          {/* Role as styled select element */}
+          <div style={{ marginBottom: '16px' }}>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                color: 'var(--text-secondary)',
+                marginBottom: '6px',
+                fontWeight: 600,
+              }}
+            >
+              Role
             </label>
-            <div className="relative">
-              <User className="w-4 h-4 text-textSecondary absolute left-3.5 top-3" />
-              <input
-                type="text"
-                required
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Dr. Anand Patel"
-                className="w-full bg-bgElevated border border-borderColor rounded-lg pl-10 pr-4 py-2 text-sm text-textPrimary placeholder:text-textSecondary/50 focus:outline-none focus:border-accentTeal"
-              />
-            </div>
+            <select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              style={{
+                backgroundColor: 'var(--bg-elevated)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                width: '100%',
+                fontSize: '14px',
+                outline: 'none',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              <option value="Doctor">Doctor</option>
+              <option value="Admin">Admin</option>
+              <option value="Pharmacist">Pharmacist</option>
+            </select>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-textSecondary absolute left-3.5 top-3" />
-              <input
-                type="email"
-                required
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="anand@hospital.in"
-                className="w-full bg-bgElevated border border-borderColor rounded-lg pl-10 pr-4 py-2 text-sm text-textPrimary placeholder:text-textSecondary/50 focus:outline-none focus:border-accentTeal"
-              />
-            </div>
-          </div>
+          {/* Hospital Name with Building2 icon */}
+          <Input
+            label="Hospital / Clinic Name"
+            icon={Building2}
+            placeholder="Netaji Subhash Chandra Bose Medical College"
+            value={formData.hospitalName}
+            onChange={(e) => setFormData({ ...formData, hospitalName: e.target.value })}
+            error={errors.hospitalName}
+            required
+          />
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">
-                Phone Number
-              </label>
-              <div className="relative">
-                <Phone className="w-4 h-4 text-textSecondary absolute left-3 top-3" />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="9876543210"
-                  className="w-full bg-bgElevated border border-borderColor rounded-lg pl-9 pr-3 py-2 text-sm text-textPrimary placeholder:text-textSecondary/50 focus:outline-none focus:border-accentTeal"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">
-                Clinical Role
-              </label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full bg-bgElevated border border-borderColor rounded-lg px-3 py-2 text-sm text-textPrimary focus:outline-none focus:border-accentTeal"
+          {/* Password with Lock icon and toggle */}
+          <Input
+            label="Password"
+            type={showPassword ? 'text' : 'password'}
+            icon={Lock}
+            placeholder="Min. 8 characters"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            error={errors.password}
+            required
+            rightElement={
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  padding: '4px',
+                }}
               >
-                <option value="doctor">Doctor</option>
-                <option value="admin">Administrator</option>
-                <option value="pharmacist">Pharmacist</option>
-                <option value="patient">Patient</option>
-              </select>
-            </div>
-          </div>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            }
+          />
 
-          <div>
-            <label className="block text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">
-              Password (min 8 chars)
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-textSecondary absolute left-3.5 top-3" />
-              <input
-                type="password"
-                required
-                name="password"
-                minLength={8}
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full bg-bgElevated border border-borderColor rounded-lg pl-10 pr-4 py-2 text-sm text-textPrimary placeholder:text-textSecondary/50 focus:outline-none focus:border-accentTeal"
-              />
-            </div>
-          </div>
+          {/* Confirm Password with Lock icon */}
+          <Input
+            label="Confirm Password"
+            type={showPassword ? 'text' : 'password'}
+            icon={Lock}
+            placeholder="Re-enter password"
+            value={formData.confirmPassword}
+            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+            error={errors.confirmPassword}
+            required
+          />
 
-          <div>
-            <label className="block text-xs font-semibold text-textSecondary uppercase tracking-wider mb-1">
-              Confirm Password
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-textSecondary absolute left-3.5 top-3" />
-              <input
-                type="password"
-                required
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full bg-bgElevated border border-borderColor rounded-lg pl-10 pr-4 py-2 text-sm text-textPrimary placeholder:text-textSecondary/50 focus:outline-none focus:border-accentTeal"
-              />
-            </div>
-          </div>
-
-          <Button type="submit" variant="primary" loading={loading} className="w-full mt-2">
-            Create Account <ArrowRight className="w-4 h-4 ml-1" />
+          {/* Register button full width primary */}
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+            size="lg"
+            disabled={loading}
+          >
+            {loading ? <Spinner size="sm" /> : 'Register'}
           </Button>
-        </form>
 
-        <p className="text-center text-xs text-textSecondary">
-          Already registered?{' '}
-          <Link to="/login" className="text-accentTeal font-semibold hover:underline">
-            Sign In
-          </Link>
-        </p>
+          {/* Already have an account login link at bottom */}
+          <div style={{ textAlign: 'center', fontSize: '14px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              style={{
+                color: 'var(--accent-teal)',
+                textDecoration: 'none',
+                fontWeight: 600,
+              }}
+            >
+              Log in
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );

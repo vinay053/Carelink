@@ -1,120 +1,263 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
-  GitPullRequest,
   Users,
-  TestTube2,
+  GitBranch,
+  FlaskConical,
   Pill,
-  Building2,
+  MapPin,
   Bot,
   BarChart3,
   Settings,
   LogOut,
-  Activity
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useApp } from '../../context/AppContext';
 
-export default function Sidebar({ isOpen, setIsOpen }) {
+export const navItems = [
+  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+  { name: 'Patients', path: '/patients', icon: Users },
+  { name: 'Referrals', path: '/referrals', icon: GitBranch },
+  { name: 'Diagnostics', path: '/diagnostics', icon: FlaskConical },
+  { name: 'Medications', path: '/medications', icon: Pill },
+  { name: 'Hospital Map', path: '/hospitals', icon: MapPin },
+  { name: 'CareBot', path: '/carebot', icon: Bot },
+  { name: 'Analytics', path: '/analytics', icon: BarChart3 },
+  { name: 'Settings', path: '/settings', icon: Settings },
+];
+
+export default function Sidebar({ isOpen, onClose }) {
   const { user, logout } = useAuth();
-  const { unreadAlertCount } = useApp();
-  const navigate = useNavigate();
 
-  const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Referrals', path: '/referrals', icon: GitPullRequest },
-    { name: 'Patients', path: '/patients', icon: Users },
-    { name: 'Diagnostics', path: '/diagnostics', icon: TestTube2 },
-    { name: 'Medications', path: '/medications', icon: Pill },
-    { name: 'Hospital Map', path: '/hospitals', icon: Building2 },
-    { name: 'CareBot AI', path: '/carebot', icon: Bot },
-    { name: 'Analytics', path: '/analytics', icon: BarChart3 },
-    { name: 'Settings', path: '/settings', icon: Settings },
-  ];
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
+  const userName = user?.name || 'CareLink User';
+  const userRole = user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Clinician';
 
   return (
-    <aside
-      className={`fixed top-0 left-0 z-40 h-screen w-64 bg-bgCard border-r border-borderColor flex flex-col transition-transform duration-300 md:translate-x-0 ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}
-    >
-      {/* Brand Header */}
-      <div className="h-16 flex items-center px-6 border-b border-borderColor justify-between">
-        <NavLink to="/dashboard" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-accentTeal/10 border border-accentTeal/30 flex items-center justify-center text-accentTeal">
-            <Activity className="w-5 h-5 animate-pulse" />
-          </div>
-          <div>
-            <span className="text-lg font-black tracking-tight text-textPrimary">
-              Care<span className="text-accentTeal">Link</span>
-            </span>
-            <span className="text-[9px] block uppercase font-bold tracking-widest text-textSecondary -mt-1">
-              Continuity AI
-            </span>
-          </div>
-        </NavLink>
-      </div>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backdropFilter: 'blur(2px)',
+            zIndex: 998,
+          }}
+          className="md:hidden"
+        />
+      )}
 
-      {/* Navigation Links */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              onClick={() => setIsOpen && setIsOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                  isActive
-                    ? 'bg-accentTeal text-bgPrimary font-semibold shadow-md shadow-accentTeal/20'
-                    : 'text-textSecondary hover:text-textPrimary hover:bg-bgElevated'
-                }`
-              }
-            >
-              <div className="flex items-center gap-3">
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                <span>{item.name}</span>
-              </div>
-              {item.name === 'Referrals' && unreadAlertCount > 0 && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-danger text-white">
-                  {unreadAlertCount}
-                </span>
-              )}
-            </NavLink>
-          );
-        })}
-      </nav>
+      <aside
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '240px',
+          height: '100vh',
+          backgroundColor: 'var(--bg-card)',
+          borderRight: '1px solid var(--border-color)',
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 999,
+          transition: 'transform 200ms ease-in-out',
+        }}
+        className={`transform ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
+      >
+        {/* Top: CareLink Logo */}
+        <div
+          style={{
+            height: '64px',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 20px',
+            borderBottom: '1px solid var(--border-color)',
+            gap: '10px',
+          }}
+        >
+          {/* Pulse circle icon */}
+          <div
+            style={{
+              position: 'relative',
+              width: '12px',
+              height: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-teal)',
+                opacity: 0.75,
+              }}
+              className="animate-ping"
+            />
+            <div
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-teal)',
+              }}
+            />
+          </div>
 
-      {/* User Footer Profile & Logout */}
-      {user && (
-        <div className="p-4 border-t border-borderColor bg-bgElevated/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-full bg-bgElevated border border-accentTeal/30 flex items-center justify-center text-accentTeal font-bold text-xs uppercase flex-shrink-0">
-                {user.name ? user.name.slice(0, 2) : 'CL'}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-textPrimary truncate">{user.name}</p>
-                <p className="text-[11px] text-accentTeal capitalize font-medium truncate">{user.role}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              title="Logout"
-              className="p-1.5 rounded-lg text-textSecondary hover:text-danger hover:bg-bgElevated transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.5px' }}>
+              CARE
+            </span>
+            <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--accent-teal)', letterSpacing: '-0.5px' }}>
+              LINK
+            </span>
           </div>
         </div>
-      )}
-    </aside>
+
+        {/* Navigation List */}
+        <nav
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '16px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+          }}
+        >
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={() => {
+                  if (onClose) onClose();
+                }}
+                style={({ isActive }) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '20px',
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                  transition: 'all 200ms ease-in-out',
+                  backgroundColor: isActive ? 'var(--accent-teal)' : 'transparent',
+                  color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
+                  fontWeight: isActive ? 600 : 500,
+                })}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.classList.contains('active')) {
+                    e.currentTarget.style.color = 'var(--accent-teal)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.classList.contains('active')) {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                  }
+                }}
+              >
+                <Icon size={18} />
+                <span>{item.name}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        {/* Bottom Section: User Avatar, Name, Role, Logout */}
+        <div
+          style={{
+            padding: '16px',
+            borderTop: '1px solid var(--border-color)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Circle avatar with first letter in teal on bg-elevated */}
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--bg-elevated)',
+                color: 'var(--accent-teal)',
+                fontWeight: 700,
+                fontSize: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              {userInitial}
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#FFFFFF',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {userName}
+              </div>
+              <div
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-secondary)',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {userRole}
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={logout}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              borderRadius: 'var(--radius-btn)',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--danger)',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 200ms ease-in-out',
+              width: '100%',
+              justifyContent: 'flex-start',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--danger-dim)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

@@ -7,48 +7,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Skill Setu Executive Navy & Container Palette
-        bgPrimary: '#0B1528',
-        bgCard: '#112038',
-        bgElevated: '#172A4A',
-        bgElevatedHover: '#1E365E',
-        borderColor: '#1E355B',
-
-        // CareLink Medical Teal + Kawach Electric Blue
+        bgPrimary: '#0D1B2A',
+        bgCard: '#1A2B3C',
+        bgElevated: '#243447',
+        borderColor: '#243447',
         accentTeal: '#00BFA6',
-        accentTealDim: '#00BFA615',
-        accentBlue: '#2563EB',
-        accentBlueDim: '#2563EB15',
-
-        // Skill Setu Terracotta & Saffron Amber Palette
-        accentAmber: '#D97706',
-        accentAmberDim: '#D9770615',
-        accentTerracotta: '#B5502E',
-        accentTerracottaDim: '#B5502E15',
-        accentSaffron: '#F59E0B',
-        accentSaffronDim: '#F59E0B15',
-
-        // Text & Status
-        textPrimary: '#F8FAFC',
-        textSecondary: '#94A3B8',
-        textMuted: '#64748B',
+        accentTealHover: '#00A896',
+        accentTealDim: 'rgba(0, 191, 166, 0.08)',
+        textPrimary: '#F0F4F8',
+        textSecondary: '#8892A4',
         textTeal: '#00BFA6',
-        danger: '#EF4444',
-        warning: '#F59E0B',
-        success: '#10B981',
-        dangerDim: '#EF444415',
-        warningDim: '#F59E0B15',
-        successDim: '#10B98115',
+        danger: '#FF4757',
+        dangerDim: 'rgba(255, 71, 87, 0.08)',
+        warning: '#FFA502',
+        warningDim: 'rgba(255, 165, 2, 0.08)',
+        success: '#2ED573',
+        successDim: 'rgba(46, 213, 115, 0.08)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
       },
       boxShadow: {
-        'glow-teal': '0 0 25px -5px rgba(0, 191, 166, 0.3)',
-        'glow-amber': '0 0 25px -5px rgba(217, 119, 6, 0.35)',
-        'glow-blue': '0 0 25px -5px rgba(37, 99, 235, 0.35)',
+        'card': '0 4px 24px rgba(0, 0, 0, 0.3)',
+        'hover': '0 8px 32px rgba(0, 0, 0, 0.4)',
       },
+      borderRadius: {
+        'card': '12px',
+        'btn': '8px',
+      }
     },
   },
   plugins: [],

@@ -1,238 +1,296 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Activity, Lock, Mail, ArrowRight, ShieldCheck, UserCheck, Stethoscope, Building, Pill, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
+import Spinner from '../components/ui/Spinner';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('dr.verma@sagarphc.in');
+  const [password, setPassword] = useState('password123');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const demoAccounts = [
-    {
-      name: 'Dr. Ramesh Verma',
-      roleTitle: 'Senior Medical Officer (PHC)',
-      facility: 'District Hospital Sagar',
-      email: 'dr.verma@sagarphc.in',
-      icon: Stethoscope,
-      color: 'text-accentTeal bg-accentTealDim border-accentTeal/30'
-    },
-    {
-      name: 'Dr. Priya Patel',
-      roleTitle: 'Cardiologist Specialist',
-      facility: 'NSCB Medical College, Jabalpur',
-      email: 'dr.patel@jabalpurmc.in',
-      icon: Activity,
-      color: 'text-danger bg-danger/10 border-danger/30'
-    },
-    {
-      name: 'Dr. Suresh Sharma',
-      roleTitle: 'State Health Coordinator',
-      facility: 'Madhya Pradesh Health Mission',
-      email: 'admin@carelink.in',
-      icon: ShieldCheck,
-      color: 'text-accentAmber bg-accentAmber/10 border-accentAmber/30'
-    },
-    {
-      name: 'R. K. Shukla',
-      roleTitle: 'Chief Pharmacist',
-      facility: 'Jabalpur MC Dispensary',
-      email: 'pharma.shukla@carelink.in',
-      icon: Pill,
-      color: 'text-accentBlue bg-accentBlue/10 border-accentBlue/30'
-    },
-  ];
-
-  const handleInstantLogin = async (demoEmail) => {
-    setLoading(true);
-    const result = await login(demoEmail, 'password123');
-    setLoading(false);
-    if (result.success) {
-      navigate('/dashboard');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+
+    if (!email || !password) {
+      setErrorMessage('Please fill in both email and password.');
+      toast.error('Please enter email and password');
+      return;
+    }
+
     setLoading(true);
-    const result = await login(email, password);
-    setLoading(false);
-    if (result.success) {
-      navigate('/dashboard');
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        toast.success(`Welcome back, ${result.user?.name || 'Doctor'}!`);
+        navigate('/dashboard');
+      } else {
+        const err = result.message || 'Invalid credentials. Please try again.';
+        setErrorMessage(err);
+        toast.error(err);
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Login failed.';
+      setErrorMessage(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-bgPrimary flex flex-col justify-center items-center p-4 sm:p-8">
-      {/* Background ambient lighting */}
-      <div className="pointer-events-none fixed -top-40 left-1/4 h-96 w-96 rounded-full bg-accentTeal/5 blur-3xl" />
-      <div className="pointer-events-none fixed -bottom-40 right-1/4 h-96 w-96 rounded-full bg-accentAmber/5 blur-3xl" />
-
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch relative z-10">
-        
-        {/* Left Column: 1-Click Instant Login Hub (Skill Setu style) */}
-        <div className="lg:col-span-7 bg-bgCard border border-borderColor rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between space-y-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-accentTeal/10 border border-accentTeal/30 flex items-center justify-center text-accentTeal shadow-glow-teal">
-                <Activity className="w-6 h-6 animate-pulse" />
-              </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black text-textPrimary tracking-tight font-display">
-                  Care<span className="text-accentTeal">Link</span> Clinical Portal
-                </h2>
-                <p className="text-xs text-textSecondary font-mono">Healthcare Continuity & Referral Intelligence</p>
-              </div>
-            </div>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: 'var(--bg-primary)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '440px',
+          backgroundColor: 'var(--bg-card)',
+          border: '2px solid var(--border-color)',
+          borderRadius: '12px',
+          padding: '40px',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        {/* Top: CareLink logo centered */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}>
+          <div
+            style={{
+              position: 'relative',
+              width: '12px',
+              height: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-teal)',
+                opacity: 0.75,
+              }}
+              className="animate-ping"
+            />
+            <div
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-teal)',
+              }}
+            />
           </div>
-
-          {/* 1-Click Demo Accounts Selector */}
-          <div className="space-y-3">
-            <p className="text-[11px] font-bold text-accentAmber uppercase tracking-wider">
-              SELECT DEMO CLINICAL ACCOUNT FOR INSTANT LOG IN:
-            </p>
-
-            <div className="space-y-2.5">
-              {demoAccounts.map((acc, idx) => {
-                const Icon = acc.icon;
-                return (
-                  <div
-                    key={idx}
-                    className="p-3 sm:p-3.5 rounded-2xl bg-bgElevated/70 border border-borderColor hover:border-accentAmber/50 flex items-center justify-between gap-3 transition-all duration-150 group"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-9 h-9 rounded-xl border flex items-center justify-center flex-shrink-0 ${acc.color}`}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-textPrimary truncate group-hover:text-accentAmber transition-colors">
-                          {acc.name}
-                        </p>
-                        <p className="text-[11px] text-textSecondary truncate">
-                          {acc.roleTitle} • <span className="text-textMuted">{acc.facility}</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleInstantLogin(acc.email)}
-                      disabled={loading}
-                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-accentTerracotta to-accentAmber hover:brightness-110 text-white shadow-glow-amber flex items-center gap-1.5 flex-shrink-0 transition-transform active:scale-95 disabled:opacity-50"
-                    >
-                      Log In <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Or Custom Credentials Form */}
-          <div className="pt-4 border-t border-borderColor/60 space-y-3">
-            <p className="text-[11px] font-bold text-textSecondary uppercase tracking-wider">
-              Or Custom Officer Credentials
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-textSecondary absolute left-3 top-2.5" />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="doctor@hospital.in"
-                    className="w-full bg-bgElevated border border-borderColor rounded-xl pl-9 pr-3 py-2 text-xs text-textPrimary placeholder:text-textSecondary/50 focus:outline-none focus:border-accentTeal"
-                  />
-                </div>
-
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-textSecondary absolute left-3 top-2.5" />
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-bgElevated border border-borderColor rounded-xl pl-9 pr-3 py-2 text-xs text-textPrimary placeholder:text-textSecondary/50 focus:outline-none focus:border-accentTeal"
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" variant="secondary" loading={loading} className="w-full text-xs py-2">
-                Sign In With Custom Credentials
-              </Button>
-            </form>
-          </div>
+          <span style={{ fontSize: '24px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.5px' }}>
+            CARE
+          </span>
+          <span style={{ fontSize: '24px', fontWeight: 700, color: 'var(--accent-teal)', letterSpacing: '-0.5px' }}>
+            LINK
+          </span>
         </div>
 
-        {/* Right Column: Facility Profile & Testing Options (Skill Setu style) */}
-        <div className="lg:col-span-5 bg-bgCard/60 border border-borderColor rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
-          <div className="space-y-4">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-accentTeal">
-                CLINICAL ENVIRONMENT & TEST NODES
-              </span>
-              <h3 className="text-xl font-bold text-textPrimary font-display mt-1">
-                Madhya Pradesh Referral Network
-              </h3>
-              <p className="text-xs text-textSecondary mt-1 leading-relaxed">
-                Pre-configured multi-tier test environment simulating real clinical handoffs across district health systems.
-              </p>
-            </div>
+        {/* Welcome back in 24px 700 white centered */}
+        <h2
+          style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#FFFFFF',
+            textAlign: 'center',
+            marginBottom: '6px',
+          }}
+        >
+          Welcome back
+        </h2>
 
-            <div className="space-y-2.5">
-              <div className="p-3 rounded-xl bg-bgElevated/50 border border-borderColor/70 space-y-1">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-textPrimary flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 text-accentTeal" /> District Hospital Sagar
-                  </span>
-                  <span className="text-[10px] text-success font-semibold">Referring Node</span>
-                </div>
-                <p className="text-[11px] text-textSecondary">Primary intake, ECG, Troponin labs & Stage 0 referral dispatch.</p>
-              </div>
+        {/* Sign in to your account in 14px var text-secondary centered */}
+        <p
+          style={{
+            fontSize: '14px',
+            color: 'var(--text-secondary)',
+            textAlign: 'center',
+            marginBottom: '28px',
+          }}
+        >
+          Sign in to your account
+        </p>
 
-              <div className="p-3 rounded-xl bg-bgElevated/50 border border-borderColor/70 space-y-1">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-textPrimary flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 text-accentAmber" /> NSCB Medical College Jabalpur
-                  </span>
-                  <span className="text-[10px] text-accentAmber font-semibold">Tertiary Center</span>
-                </div>
-                <p className="text-[11px] text-textSecondary">Cardiology specialty clinic, ICU beds, angiography & counter-referrals.</p>
-              </div>
+        {/* Form below with 24px gap between fields */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Email input with Mail icon */}
+          <Input
+            label="Email Address"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="doctor@carelink.in"
+            icon={Mail}
+            required
+          />
 
-              <div className="p-3 rounded-xl bg-bgElevated/50 border border-borderColor/70 space-y-1">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-textPrimary flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-accentBlue" /> Gemini 3.5 Flash-Lite
-                  </span>
-                  <span className="text-[10px] text-accentTeal font-semibold">Active Engine</span>
-                </div>
-                <p className="text-[11px] text-textSecondary">Real-time SSE care coordination assistant with patient context awareness.</p>
-              </div>
-            </div>
-          </div>
+          {/* Password input with Lock icon and clickable Eye toggle */}
+          <Input
+            label="Password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••••••"
+            icon={Lock}
+            required
+            rightElement={
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  padding: '4px',
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            }
+          />
 
-          {/* Quick Direct Launch Action */}
-          <div className="pt-4 border-t border-borderColor/60 space-y-2">
-            <button
-              onClick={() => handleInstantLogin('dr.verma@sagarphc.in')}
-              disabled={loading}
-              className="w-full py-3 px-4 rounded-xl text-xs font-bold bg-gradient-to-r from-accentTerracotta via-accentAmber to-accentSaffron hover:brightness-110 text-white shadow-glow-amber transition-all flex items-center justify-center gap-2"
+          {/* Row with Remember me checkbox left-aligned, Forgot password link right-aligned */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '13px',
+              marginTop: '-6px',
+            }}
+          >
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{
+                  accentColor: 'var(--accent-teal)',
+                  cursor: 'pointer',
+                }}
+              />
+              <span>Remember me</span>
+            </label>
+
+            <a
+              href="#forgot"
+              onClick={(e) => {
+                e.preventDefault();
+                toast('Contact state coordinator admin to reset credential credentials.');
+              }}
+              style={{
+                color: 'var(--accent-teal)',
+                textDecoration: 'none',
+                fontWeight: 500,
+              }}
             >
-              <UserCheck className="w-4 h-4" /> Direct Log In as Dr. Verma & Open Dashboard
-            </button>
-            <p className="text-[10px] text-center text-textSecondary">
-              Default password for all demo credentials: <code className="text-textPrimary font-mono">password123</code>
-            </p>
+              Forgot password?
+            </a>
           </div>
-        </div>
 
+          {/* Login button full width primary below */}
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+            size="lg"
+            disabled={loading}
+          >
+            {loading ? <Spinner size="sm" /> : 'Login'}
+          </Button>
+
+          {/* Divider with OR centered between two lines */}
+          <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }} />
+            <span style={{ padding: '0 12px', fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              OR
+            </span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }} />
+          </div>
+
+          {/* Demo account quick login helper */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setEmail('admin@carelink.in');
+                setPassword('password123');
+              }}
+            >
+              Admin Demo
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setEmail('dr.patel@jabalpurmc.in');
+                setPassword('password123');
+              }}
+            >
+              Specialist Demo
+            </Button>
+          </div>
+
+          {/* Error message area below form in var danger color if login fails */}
+          {errorMessage && (
+            <div
+              style={{
+                backgroundColor: 'var(--danger-dim)',
+                border: '1px solid var(--danger)',
+                color: 'var(--danger)',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                textAlign: 'center',
+                fontWeight: 500,
+              }}
+            >
+              {errorMessage}
+            </div>
+          )}
+
+          {/* Bottom: Don't have an account? text then Register link in teal */}
+          <div style={{ textAlign: 'center', fontSize: '14px', color: 'var(--text-secondary)' }}>
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              style={{
+                color: 'var(--accent-teal)',
+                textDecoration: 'none',
+                fontWeight: 600,
+              }}
+            >
+              Register
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );

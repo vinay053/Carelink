@@ -1,25 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function Card({
   children,
   className = '',
-  hoverEffect = false,
-  glow = null, // 'danger' | 'teal' | 'warning'
+  hover = false,
+  padding = '24px',
   onClick,
+  style = {},
   ...props
 }) {
-  const glowClasses = {
-    danger: 'border-danger/40 shadow-lg shadow-danger/10',
-    teal: 'border-accentTeal/40 shadow-lg shadow-accentTeal/10',
-    warning: 'border-warning/40 shadow-lg shadow-warning/10'
+  const [isHovered, setIsHovered] = useState(false);
+
+  const baseStyle = {
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
+    borderRadius: 'var(--radius-card)', // 12px
+    padding: padding,
+    boxShadow: 'var(--shadow-card)',
+    transition: 'all 200ms ease-in-out',
+    ...style,
   };
+
+  const hoverStyle = hover && isHovered ? {
+    transform: 'translateY(-2px)',
+    boxShadow: 'var(--shadow-hover)',
+  } : {};
 
   return (
     <div
+      className={className}
       onClick={onClick}
-      className={`bg-bgCard border border-borderColor rounded-xl p-5 transition-all duration-200 ${
-        hoverEffect ? 'hover:-translate-y-0.5 hover:shadow-xl hover:border-borderColor/80 cursor-pointer' : ''
-      } ${glow ? glowClasses[glow] : ''} ${className}`}
+      onMouseEnter={() => { if (hover) setIsHovered(true); }}
+      onMouseLeave={() => { if (hover) setIsHovered(false); }}
+      style={{ ...baseStyle, ...hoverStyle }}
       {...props}
     >
       {children}

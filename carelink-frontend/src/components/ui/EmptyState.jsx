@@ -2,28 +2,60 @@ import React from 'react';
 import Button from './Button';
 
 export default function EmptyState({
-  title = 'No records found',
-  description = 'There are no active items in this view.',
-  actionLabel,
+  icon: Icon,
+  title = 'No items found',
+  description,
+  actionText,
   onAction,
-  icon: Icon
+  actionIcon,
+  className = '',
 }) {
   return (
-    <div className="p-12 text-center flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
-      <div className="w-12 h-12 rounded-2xl bg-bgElevated border border-borderColor flex items-center justify-center text-textSecondary mb-1">
-        {Icon ? <Icon className="w-6 h-6" /> : (
-          <svg className="w-6 h-6 text-accentTeal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        )}
-      </div>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '48px 24px',
+        textAlign: 'center',
+      }}
+      className={className}
+    >
+      {Icon && (
+        <div style={{ marginBottom: '16px', color: 'var(--accent-teal)' }}>
+          {React.isValidElement(Icon) ? Icon : <Icon size={64} />}
+        </div>
+      )}
 
-      <h4 className="text-sm font-bold text-textPrimary">{title}</h4>
-      <p className="text-xs text-textSecondary leading-relaxed">{description}</p>
+      <h3
+        style={{
+          fontSize: '18px',
+          fontWeight: 600,
+          color: '#FFFFFF',
+          marginBottom: '8px',
+        }}
+      >
+        {title}
+      </h3>
 
-      {actionLabel && (
-        <Button variant="primary" size="sm" onClick={onAction} className="mt-2">
-          {actionLabel}
+      {description && (
+        <p
+          style={{
+            fontSize: '16px',
+            color: 'var(--text-secondary)',
+            maxWidth: '460px',
+            marginBottom: '20px',
+            lineHeight: 1.5,
+          }}
+        >
+          {description}
+        </p>
+      )}
+
+      {actionText && onAction && (
+        <Button variant="primary" onClick={onAction} icon={actionIcon}>
+          {actionText}
         </Button>
       )}
     </div>
