@@ -3,21 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #0D1B2A;
-  --bg-card: #1A2B3C;
-  --bg-elevated: #243447;
+  --bg-primary: #0B1528;
+  --bg-card: #112038;
+  --bg-elevated: #172A4A;
   --accent-teal: #00BFA6;
-  --accent-teal-dim: #00BFA615;
-  --text-primary: #F0F4F8;
-  --text-secondary: #8892A4;
-  --text-teal: #00BFA6;
-  --border-color: #243447;
-  --danger: #FF4757;
-  --warning: #FFA502;
-  --success: #2ED573;
-  --danger-dim: #FF475715;
-  --warning-dim: #FFA50215;
-  --success-dim: #2ED57315;
+  --accent-blue: #2563EB;
+  --accent-amber: #D97706;
+  --accent-terracotta: #B5502E;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border-color: #1E355B;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+  --success: #10B981;
 }
 
 body {
@@ -28,6 +26,10 @@ body {
   overflow-x: hidden;
 }
 
+h1, h2, h3, .font-display {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -35,11 +37,11 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0D1B2A;
+  background: #0B1528;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #243447;
+  background: #1E355B;
   border-radius: 9999px;
 }
 
@@ -56,4 +58,20 @@ body {
 
 .animate-pulse-ring {
   animation: pulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Live Ticker Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
