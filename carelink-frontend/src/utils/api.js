@@ -7,7 +7,11 @@ export const setApiLogoutHandler = (fn) => {
   logoutHandler = fn;
 };
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+let rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
+// Replace localhost:5000 with 127.0.0.1:5000 to prevent macOS AirTunes 403 Forbidden intercept
+if (rawBaseUrl.includes('localhost:5000')) {
+  rawBaseUrl = rawBaseUrl.replace('localhost:5000', '127.0.0.1:5000');
+}
 const apiBase = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
 
 const api = axios.create({
