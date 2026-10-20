@@ -70,7 +70,7 @@ docker compose up -d
 cd carelink-backend
 npm install
 npm run seed     # Populates Madhya Pradesh facilities, patients, and referrals
-npm run dev      # Starts server on http://localhost:5000
+npm run dev      # Starts server on http://127.0.0.1:5000 (binds to 127.0.0.1 to avoid macOS AirPlay conflicts)
 ```
 
 ### Step 3: Set Up & Launch Frontend
@@ -81,6 +81,34 @@ npm run dev      # Starts UI on http://localhost:5173
 ```
 
 Open `http://localhost:5173` in your browser.
+
+---
+
+## 4.1 Comprehensive Documentation & Handover Suite
+
+| Category | File | Description |
+|---|---|---|
+| **AI & Continuity** | [AGENTS.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/AGENTS.md) | Agent system instructions, design tokens, & developer protocol |
+| **AI Handover** | [docs/AI_HANDOVER.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/AI_HANDOVER.md) | Zero-loss knowledge transfer protocol for future AI chats |
+| **Recovery Guide** | [docs/RECOVERY_GUIDE.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/RECOVERY_GUIDE.md) | Clean-slate machine restoration and instant setup |
+| **Operational Health**| [PROJECT_STATUS.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/PROJECT_STATUS.md) | Real-time subsystem health & module verification matrix |
+| **Engineering Log** | [DEVELOPMENT_LOG.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/DEVELOPMENT_LOG.md) | Chronological record of technical fixes & AirPlay resolution |
+| **Architecture** | [docs/ARCHITECTURE.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/ARCHITECTURE.md) | High-level system architecture & data flow diagrams |
+| **File Structure** | [docs/FILE_STRUCTURE.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/FILE_STRUCTURE.md) | Complete directory tree and file manifest |
+| **Setup Guide** | [docs/SETUP_AND_INSTALLATION.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/SETUP_AND_INSTALLATION.md) | Prerequisites and step-by-step local installation |
+| **Run & Build** | [docs/RUN_AND_BUILD.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/RUN_AND_BUILD.md) | Dev server execution and production bundling |
+| **Environment** | [docs/ENVIRONMENT_CONFIGURATION.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/ENVIRONMENT_CONFIGURATION.md) | All backend and frontend environment variables |
+| **Database & Models**| [docs/DATABASE_AND_DATA.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/DATABASE_AND_DATA.md) | Mongoose schemas and clinical cohort seeding details |
+| **REST API** | [docs/API_AND_INTEGRATIONS.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/API_AND_INTEGRATIONS.md) | Full endpoint reference and external integrations |
+| **Design System** | [docs/UI_AND_DESIGN_GUIDE.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/UI_AND_DESIGN_GUIDE.md) | Skill Setu / Kawach theme tokens & UI components |
+| **Business Logic** | [docs/BUSINESS_LOGIC.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/BUSINESS_LOGIC.md) | Dropout risk scoring algorithm and SLA auditor rules |
+| **Workflows** | [docs/FEATURES_AND_WORKFLOWS.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/FEATURES_AND_WORKFLOWS.md) | Clinical user journeys and referral handoff steps |
+| **Testing & QA** | [docs/TESTING_AND_VALIDATION.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/TESTING_AND_VALIDATION.md) | Model, auth, and route verification test suite |
+| **Known Quirks** | [docs/KNOWN_ISSUES.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/KNOWN_ISSUES.md) | AirPlay 403 mitigation and database connection fallbacks |
+| **Decisions (ADRs)**| [docs/DECISIONS_AND_RATIONALE.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/DECISIONS_AND_RATIONALE.md) | Architectural decision records |
+| **Roadmap** | [docs/FUTURE_ROADMAP.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/FUTURE_ROADMAP.md) | Multiphase product roadmap (WebSockets, ABDM, PWA) |
+| **Next Actions** | [docs/NEXT_SESSION_ACTION_PLAN.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/docs/NEXT_SESSION_ACTION_PLAN.md) | Priority backlog for the next development session |
+| **Changelog & Tasks**| [CHANGELOG.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/CHANGELOG.md) & [TODO.md](file:///Users/shivamrai/.gemini/antigravity/scratch/Carelink/TODO.md) | Version history and upcoming tasks |
 
 ---
 
